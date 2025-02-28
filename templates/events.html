@@ -1,69 +1,55 @@
-{% extends 'base.html' %}
-{% block title %}Events{% endblock %}
-{% block content %}
-<h2>Events verwalten</h2>
-<div class="card mb-4">
-  <h3>Neues Event hinzufügen</h3>
-  <form id="eventForm" method="post" enctype="multipart/form-data">
-    <div class="mb-3">
-      <label class="form-label">Event-Titel:</label>
-      <input type="text" name="title" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Beschreibung:</label>
-      <textarea name="description" class="form-control" required></textarea>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Preisgeld:</label>
-      <input type="text" name="prize" class="form-control">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Bild-URL oder Bild hochladen:</label>
-      <input type="url" name="image_url" class="form-control" placeholder="https://example.com/image.jpg">
-      <!-- Für einen echten Upload könnte man Drag & Drop einbauen -->
-    </div>
-    <button type="submit" class="btn btn-custom mt-2">Event hinzufügen</button>
-  </form>
-</div>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Events verwalten</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-4">📅 Event Verwaltung</h1>
 
-<h3>Aktuelle Events</h3>
-<div class="row">
-  {% for event in events %}
-  <div class="col-md-4">
-    <div class="card mb-3">
-      {% if event.image_url %}
-      <img src="{{ event.image_url }}" class="card-img-top" style="object-fit: cover; height: 200px;">
-      {% endif %}
-      <div class="card-body">
-        <h5 class="card-title">{{ event.title }}</h5>
-        <p class="card-text">{{ event.description }}</p>
-        <p class="card-text"><strong>Preisgeld:</strong> {{ event.prize }}</p>
-        <button class="btn btn-danger btn-sm delete-event" data-id="{{ event.id }}">Löschen</button>
-      </div>
+        <div class="card mt-4 p-4">
+            <h3>Neues Event hinzufügen</h3>
+            <form action="/events" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Event-Titel</label>
+                    <input type="text" name="title" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Beschreibung</label>
+                    <textarea name="description" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Preisgeld</label>
+                    <input type="text" name="prize" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Bild auswählen oder per URL eingeben</label>
+                    <input type="url" name="image_url" class="form-control" placeholder="https://example.com/bild.jpg">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">➕ Event hinzufügen</button>
+            </form>
+        </div>
+
+        <h2 class="mt-5">📋 Gespeicherte Events</h2>
+        <div class="row">
+            {% for event in events %}
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <img src="{{ event.image_url }}" class="card-img-top img-preview" alt="Event Bild">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            <p class="card-text">{{ event.description }}</p>
+                            <p class="text-muted">🏆 Preisgeld: <strong>{{ event.prize }}</strong></p>
+                            <button class="btn btn-danger w-100 delete-event" data-id="{{ event.id }}">Löschen</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-  </div>
-  {% endfor %}
-</div>
-
-<script>
-document.getElementById("eventForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  fetch("/events", { method: "POST", body: formData })
-    .then(response => {
-      if(response.ok) location.reload();
-    });
-});
-
-document.querySelectorAll('.delete-event').forEach(button => {
-  button.addEventListener('click', function() {
-    const eventId = this.getAttribute('data-id');
-    if(confirm("Event wirklich löschen?")) {
-      fetch(`/delete_event/${eventId}`, { method: "DELETE" })
-        .then(response => response.json())
-        .then(data => { alert(data.message); location.reload(); });
-    }
-  });
-});
-</script>
-{% endblock %}
+</body>
+</html>

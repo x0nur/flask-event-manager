@@ -1,53 +1,57 @@
-{% extends 'base.html' %}
-{% block title %}Abstimmung starten{% endblock %}
-{% block content %}
-<h2>Abstimmung starten</h2>
-<form id="pollForm">
-  <div class="mb-3">
-    <label class="form-label">Wähle Events aus:</label>
-    {% for event in events %}
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" name="selected_events" value="{{ event.title }}" id="event{{ event.id }}">
-      <label class="form-check-label" for="event{{ event.id }}">{{ event.title }}</label>
-    </div>
-    {% endfor %}
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Wähle Discord Channel:</label>
-    <select name="channel_id" class="form-select" id="channelSelect">
-      <!-- Optionen werden via AJAX geladen -->
-    </select>
-  </div>
-  <button type="submit" class="btn btn-custom">Abstimmung starten</button>
-</form>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Abstimmung starten</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-4">🗳️ Abstimmung starten</h1>
 
-<script>
-function loadChannels() {
-  fetch("/channels")
-    .then(response => response.json())
-    .then(data => {
-      const select = document.getElementById("channelSelect");
-      data.channels.forEach(ch => {
-        const option = document.createElement("option");
-        option.value = ch.id;
-        option.text = ch.name;
-        select.appendChild(option);
-      });
-    });
-}
-document.getElementById("pollForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const selected_events = formData.getAll("selected_events");
-  const channel_id = formData.get("channel_id");
-  fetch("/poll", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ selected_events, channel_id })
-  })
-  .then(response => response.json())
-  .then(data => alert(data.message));
-});
-loadChannels();
-</script>
-{% endblock %}
+        <form id="pollForm">
+            <div class="mb-3">
+                <label>Wähle die Events für die Abstimmung:</label>
+                <div id="eventList">
+                    {% for event in events %}
+                        <label>
+                            <input type="checkbox" name="selected_events" value="{{ event.id }}"> {{ event.title }}
+                        </label>
+                        <br>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="mb-3">
+                <label>Discord Channel:</label>
+                <select id="channelSelect" class="form-control"></select>
+            </div>
+            <button type="submit" class="btn btn-success w-100">🚀 Abstimmung starten</button>
+        </form>
+    </div>
+
+    <script>
+        async function fetchChannels() {
+            const response = await fetch("/channels");
+            const data = await response.json();
+            const channelSelect = document.getElementById("channelSelect");
+            if (data.channels.length > 0) {
+                channelSelect.innerHTML = data.channels.map(ch => `<option value="${ch.id}">${ch.name}</option>`).join("");
+            } else {
+                channelSelect.innerHTML = "<option>Keine Kanäle gefunden</option>";
+            }
+        }
+
+        document.getElementById("pollForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const selectedEvents = [...document.querySelectorAll("input[name='selected_events']:checked")].map(e => e.value);
+            const channelId = document.getElementById("channelSelect").value;
+            await fetch("/poll", { method: "POST", body: JSON.stringify({ selected_events: selectedEvents, channel_id: channelId }) });
+            alert("Abstimmung gestartet!");
+        });
+
+        fetchChannels();
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+body {
+    background-color: #181818;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    margin-top: 30px;
+}
+
+.card {
+    background-color: #242424;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.btn-custom {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.btn-custom:hover {
+    background-color: #0056b3;
+}
+
+/* 🛠 Fix für Texte, die unsichtbar waren */
+label, h1, h2, h3, h4, h5, h6, p {
+    color: white !important;
+}
+
+/* 🛠 Eingabefelder sollen schwarz bleiben */
+input, textarea, select {
+    background-color: #ffffff;
+    color: black;
+}
+
+/* 🔹 Fix für die Bildanzeige in der Eventliste */
+.img-preview {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* 🛠 Fix für die Drag & Drop-Zone */
+.drop-zone {
+    border: 2px dashed #bbb;
+    border-radius: 5px;
+    padding: 20px;
+    text-align: center;
+    color: #bbb;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+.drop-zone.dragover {
+    border-color: #007bff;
+    color: #007bff;
+    background-color: #1e1e1e;
+}
