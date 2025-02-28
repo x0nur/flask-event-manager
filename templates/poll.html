@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Abstimmung starten{% endblock %}
+{% block content %}
+<h2>Abstimmung starten</h2>
+<form id="pollForm">
+  <div class="mb-3">
+    <label class="form-label">Wähle Events aus:</label>
+    {% for event in events %}
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="selected_events" value="{{ event.title }}" id="event{{ event.id }}">
+      <label class="form-check-label" for="event{{ event.id }}">{{ event.title }}</label>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Wähle Discord Channel:</label>
+    <select name="channel_id" class="form-select" id="channelSelect">
+      <!-- Optionen werden via AJAX geladen -->
+    </select>
+  </div>
+  <button type="submit" class="btn btn-custom">Abstimmung starten</button>
+</form>
+
+<script>
+function loadChannels() {
+  fetch("/channels")
+    .then(response => response.json())
+    .then(data => {
+      const select = document.getElementById("channelSelect");
+      data.channels.forEach(ch => {
+        const option = document.createElement("option");
+        option.value = ch.id;
+        option.text = ch.name;
+        select.appendChild(option);
+      });
+    });
+}
+document.getElementById("pollForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const selected_events = formData.getAll("selected_events");
+  const channel_id = formData.get("channel_id");
+  fetch("/poll", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ selected_events, channel_id })
+  })
+  .then(response => response.json())
+  .then(data => alert(data.message));
+});
+loadChannels();
+</script>
+{% endblock %}
